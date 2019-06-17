@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TaskCollectionViewCell: UICollectionViewCell {
+class TodoCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.cornerRadius = 20

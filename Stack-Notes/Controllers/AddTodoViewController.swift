@@ -8,7 +8,14 @@
 
 import UIKit
 
+// MARK: Add todo delegate
+protocol AddTodo: class {
+    func addTodo(todo: Todo)
+}
+
 class AddTodoViewController: UIViewController {
+    // MARK: Variables
+    weak var delegate: AddTodo?
     // MARK: Custom UIs
     var todoView = TodoVIew()
     var colorStackView = ColorOptionsStackView()
@@ -22,11 +29,6 @@ class AddTodoViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configNavBar()
-        if checkTitle() {
-            navigationItem.rightBarButtonItem?.isEnabled = false
-        } else {
-            navigationItem.rightBarButtonItem?.isEnabled = true
-        }
     }
 }
 
@@ -66,7 +68,7 @@ extension AddTodoViewController {
         navigationController?.navigationBar.barTintColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1)
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         // Nav bar buttons
         let addButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveButtonTapped))
         navigationItem.rightBarButtonItem = addButton
@@ -76,7 +78,18 @@ extension AddTodoViewController {
 // MARK: OBJC functions
 extension AddTodoViewController {
     @objc private func saveButtonTapped() {
-        print("save button tapped")
+        if checkTitle() {
+            // Add animation
+        } else {
+            let title = todoView.titleTextField.text!
+            let description = todoView.descriptionTextView.text
+            let newTodo = Todo.init(title: title,
+                                   description: description,
+                                   done: false,
+                                   color: view.backgroundColor!)
+            delegate?.addTodo(todo: newTodo)
+            navigationController?.popViewController(animated: true)
+        }
     }
 }
 
@@ -101,15 +114,14 @@ extension AddTodoViewController: UITextViewDelegate {
 // MARK: TextFieldDelegate
 extension AddTodoViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        return textField.endEditing(false)
+        textField.resignFirstResponder()
+        return true
     }
-    @objc private func editingChange() {
-        if checkTitle() {
-            navigationItem.rightBarButtonItem?.isEnabled = false
-        } else {
-            navigationItem.rightBarButtonItem?.isEnabled = true
-        }
+    // Stop the user from editing when the keyboard is hidden
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        todoView.titleTextField.endEditing(true)
     }
+    // Input validation
     private func checkTitle() -> Bool {
         if let text = todoView.titleTextField.text {
             let trimmingString = text.trimmingCharacters(in: .whitespaces)
@@ -122,4 +134,5 @@ extension AddTodoViewController: UITextFieldDelegate {
         return false
     }
 }
+
 

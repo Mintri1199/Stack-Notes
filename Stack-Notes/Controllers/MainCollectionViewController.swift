@@ -7,87 +7,61 @@
 //
 
 import UIKit
+import CoreData
 
 private let reuseIdentifier = "Cell"
 
 class MainCollectionViewController: UICollectionViewController {
-
-    var viewModel: [Int] = [1, 2, 3, 4, 5]
+    // MARK: Variables
+    var todoStore: TodoStore!
+    var viewModels: [TodoViewModel] = []
+    var isRemoving = false
+    // MARK: ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
+        collectionView.dataSource = self
         // Register cell classes
-        self.collectionView!.register(TaskCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
+        self.collectionView!.register(TodoCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         // Do any additional setup after loading the view.
         setupSelfView()
     }
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configNavBar()
+        viewModels = []
+        todoStore.saveContext()
+        populatePersistent()
     }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
     // MARK: UICollectionViewDataSource
-
-
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if viewModel.count == 0 {
+        if viewModels.count == 0 {
             setupEmptyView()
         } else {
             self.collectionView.restore()
         }
-        return viewModel.count
+        return viewModels.count
     }
-
+    // MARK: CellForItemAt
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-        // Configure the cell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! TodoCollectionViewCell
+        let todo = viewModels[indexPath.row]
+        cell.backgroundColor = todo.color
+        cell.titleLabel.text = todo.title
         return cell
     }
-
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if isRemoving {
+            let selected = viewModels[indexPath.row]
+            todoStore.deletePersistedTodo(entityId: selected.entityId)
+            collectionView.performBatchUpdates({
+                viewModels.remove(at: indexPath.row)
+                collectionView.deleteItems(at: [indexPath])
+                todoStore.saveContext()
+            }, completion: nil)
+        } else {
+            return
+        }
     }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-    
-    }
-    */
 }
 
 // MARK: UI Functions
@@ -105,13 +79,12 @@ extension MainCollectionViewController {
         navigationController?.navigationBar.barTintColor = .mainNavBarBlack
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
-         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         // Nav bar buttons
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
-        navigationItem.rightBarButtonItem = addButton
         let deleteButton = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(trashTapped))
-        navigationItem.leftBarButtonItem = deleteButton
+        self.navigationItem.rightBarButtonItem = addButton
+        self.navigationItem.leftBarButtonItem = deleteButton
     }
 }
 
@@ -119,9 +92,56 @@ extension MainCollectionViewController {
 // MARK: Objc functions
 extension MainCollectionViewController {
     @objc private func addButtonTapped() {
-        navigationController?.pushViewController(AddTodoViewController(), animated: true)
+        let addTodoVC = AddTodoViewController()
+        addTodoVC.delegate = self
+        navigationController?.pushViewController(addTodoVC, animated: true)
     }
     @objc private func trashTapped() {
-        print("Trash button tapped")
+        isRemoving = true
+        let doneRemovingButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneRemoving))
+        navigationItem.leftBarButtonItem = doneRemovingButton
+        navigationItem.rightBarButtonItem = nil
+        self.collectionView.reloadData()
+    }
+    @objc private func doneRemoving() {
+        isRemoving = false
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        let deleteButton = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(trashTapped))
+        navigationItem.rightBarButtonItem = addButton
+        navigationItem.leftBarButtonItem = deleteButton
+        self.collectionView.reloadData()
+    }
+}
+// MARK: Core Data functions
+extension MainCollectionViewController {
+    // Update the collectionView's datasource
+    private func populatePersistent() {
+        todoStore.fetchPersistedData { (result) in
+            switch result {
+            case .success(let listOfTodos):
+                listOfTodos.forEach({ (persistent) in
+                    self.viewModels.append(TodoViewModel.init(todo: persistent))
+                })
+            case .failure(let error):
+                print(error)
+                self.viewModels.removeAll()
+            }
+            // reload the collectionView's data source to present the current data set
+            self.collectionView.reloadData()
+        }
+    }
+}
+// MARK: AddTodoDelegate
+extension MainCollectionViewController: AddTodo {
+    func addTodo(todo: Todo) {
+        let newTodo = NSEntityDescription.insertNewObject(forEntityName: "TodoPersistent", into: todoStore.persistentContainer.viewContext) as? TodoPersistent
+        print(todo)
+        newTodo?.color = todo.color
+        newTodo?.title = todo.title
+        newTodo?.taskDescription = todo.description
+        newTodo?.done = todo.done
+        if let todo = newTodo {
+            viewModels.append(TodoViewModel.init(todo: todo))
+        }
     }
 }
