@@ -9,16 +9,13 @@
 import UIKit
 
 class EmptyView: UIView {
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupConstraints()
     }
-    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     // MARK: Config the label
     let titleLabel: UILabel = {
         var label = UILabel(frame: .zero)
@@ -39,11 +36,9 @@ class EmptyView: UIView {
         label.font = UIFont(name: "HelveticaNeue-Regular", size: 17)
         return label
     }()
-    
     private func setupConstraints() {
         addSubview(titleLabel)
         addSubview(messageLabel)
-        
         NSLayoutConstraint.activate([
             titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),

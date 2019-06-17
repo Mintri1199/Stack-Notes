@@ -9,7 +9,6 @@
 import UIKit
 
 class TodoTaskDescription: UITextView {
-    
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
         text = "Description"
@@ -20,9 +19,7 @@ class TodoTaskDescription: UITextView {
         font = UIFont(name: "Helvetica", size: 20)
         textContainerInset = UIEdgeInsets.init(top: 10, left: 10, bottom: 20, right: 10)
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

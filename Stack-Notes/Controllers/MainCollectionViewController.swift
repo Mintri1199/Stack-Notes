@@ -12,8 +12,7 @@ private let reuseIdentifier = "Cell"
 
 class MainCollectionViewController: UICollectionViewController {
 
-    var viewModel: [Int] = [1,2,3,4,5]
-    
+    var viewModel: [Int] = [1, 2, 3, 4, 5]
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -50,15 +49,12 @@ class MainCollectionViewController: UICollectionViewController {
         } else {
             self.collectionView.restore()
         }
-        
         return viewModel.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
         // Configure the cell
-    
         return cell
     }
 
@@ -100,11 +96,9 @@ extension MainCollectionViewController {
         let emptyView = EmptyView(frame: self.view.bounds)
         self.collectionView.backgroundView = emptyView
     }
-    
     private func setupSelfView() {
         collectionView.backgroundColor = .mainBackgroundGray
     }
-    
     private func configNavBar() {
         self.title = "Todos"
         // Color of the nav bar
@@ -124,11 +118,9 @@ extension MainCollectionViewController {
 
 // MARK: Objc functions
 extension MainCollectionViewController {
-    
     @objc private func addButtonTapped() {
         navigationController?.pushViewController(AddTodoViewController(), animated: true)
     }
-    
     @objc private func trashTapped() {
         print("Trash button tapped")
     }

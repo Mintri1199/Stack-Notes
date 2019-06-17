@@ -9,7 +9,6 @@
 import UIKit
 
 class TitleTextField: UITextField {
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
@@ -19,11 +18,9 @@ class TitleTextField: UITextField {
         textAlignment = .center
         placeholder = "Enter Title"
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     // Provide padding to the text
     override func drawText(in rect: CGRect) {
         let insets = UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 20)

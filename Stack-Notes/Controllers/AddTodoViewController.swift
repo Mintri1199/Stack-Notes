@@ -9,10 +9,9 @@
 import UIKit
 
 class AddTodoViewController: UIViewController {
-    //MARK: Custom UIs
+    // MARK: Custom UIs
     var todoView = TodoVIew()
     var colorStackView = ColorOptionsStackView()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -20,7 +19,6 @@ class AddTodoViewController: UIViewController {
         setupTodoView()
         setupColorStackView()
     }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configNavBar()
@@ -30,19 +28,15 @@ class AddTodoViewController: UIViewController {
             navigationItem.rightBarButtonItem?.isEnabled = true
         }
     }
-    
 }
 
 // MARK: UI Functions
 extension AddTodoViewController {
-    
     private func setupSelfView() {
         self.view.backgroundColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1)
     }
-    
     private func setupTodoView() {
         self.view.addSubview(todoView)
-        
         NSLayoutConstraint.activate([
             todoView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             todoView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 25),
@@ -50,15 +44,12 @@ extension AddTodoViewController {
             todoView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15),
             todoView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.50)
             ])
-        
         todoView.layer.cornerRadius = 30
         todoView.descriptionTextView.delegate = self
         todoView.titleTextField.delegate = self
     }
-    
     private func setupColorStackView() {
         self.view.addSubview(colorStackView)
-        
         NSLayoutConstraint.activate([
             colorStackView.topAnchor.constraint(equalTo: todoView.bottomAnchor, constant: 30),
             colorStackView.leadingAnchor.constraint(equalTo: todoView.leadingAnchor),
@@ -69,8 +60,6 @@ extension AddTodoViewController {
         colorStackView.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
     }
 
-
-    
     private func configNavBar() {
         self.title = "Add Todo"
         // Color of the nav bar
@@ -78,7 +67,6 @@ extension AddTodoViewController {
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
-        
         // Nav bar buttons
         let addButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveButtonTapped))
         navigationItem.rightBarButtonItem = addButton
@@ -94,7 +82,6 @@ extension AddTodoViewController {
 
 // MARK: TextViewDelegate
 extension AddTodoViewController: UITextViewDelegate {
-    
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.text == "Description" && textView.textColor == .lightGray {
             textView.text = ""
@@ -102,7 +89,6 @@ extension AddTodoViewController: UITextViewDelegate {
         }
         textView.becomeFirstResponder()
     }
-    
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = "Description"
@@ -117,18 +103,14 @@ extension AddTodoViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return textField.endEditing(false)
     }
-    
     @objc private func editingChange() {
-        if checkTitle(){
+        if checkTitle() {
             navigationItem.rightBarButtonItem?.isEnabled = false
-        }else {
+        } else {
             navigationItem.rightBarButtonItem?.isEnabled = true
         }
     }
-
-    
-    
-    private func checkTitle() -> Bool{
+    private func checkTitle() -> Bool {
         if let text = todoView.titleTextField.text {
             let trimmingString = text.trimmingCharacters(in: .whitespaces)
             if trimmingString.isEmpty {

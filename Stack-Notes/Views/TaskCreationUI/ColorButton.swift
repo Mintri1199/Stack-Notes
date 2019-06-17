@@ -9,10 +9,8 @@
 import UIKit
 
 class ColorButton: UIButton {
-    
     var circleLayer = CAShapeLayer()
     var borderLayer = CAShapeLayer()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
 //        layer.shadowColor = UIColor.black.cgColor
@@ -22,22 +20,18 @@ class ColorButton: UIButton {
 //        layer.masksToBounds = false
 //        circleLayer.shadowPath = UIBezierPath(ovalIn: bounds).cgPath
     }
-    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         circleLayer.path = UIBezierPath(ovalIn: bounds).cgPath
         circleLayer.position = CGPoint(x: 0, y: 0)
-        
         //Draw the circle border
         borderLayer.path = UIBezierPath(ovalIn: bounds).cgPath
         borderLayer.strokeColor = UIColor.white.cgColor
         borderLayer.lineWidth = 6
         borderLayer.fillColor = UIColor.clear.cgColor
-        
         self.layer.addSublayer(circleLayer)
         self.layer.addSublayer(borderLayer)
     }

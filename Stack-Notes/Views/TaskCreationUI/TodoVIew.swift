@@ -10,26 +10,22 @@ import UIKit
 
 // This will be the view for add todo VC
 class TodoVIew: UIView {
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
 //        titleTextField.backgroundColor = .yellow
 //        descriptionTextView.backgroundColor = .purple
         setupViews()
         backgroundColor = .white
-        translatesAutoresizingMaskIntoConstraints = false 
+        translatesAutoresizingMaskIntoConstraints = false
         clipsToBounds = true
 //        applyShadowOnView()
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     var titleTextField = TitleTextField()
 
     var descriptionTextView = TodoTaskDescription()
-    
     private func setupViews() {
         addSubview(titleTextField)
         addSubview(descriptionTextView)
@@ -38,7 +34,6 @@ class TodoVIew: UIView {
             titleTextField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
             titleTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             titleTextField.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.15),
-            
             descriptionTextView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor),
             descriptionTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
             descriptionTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
