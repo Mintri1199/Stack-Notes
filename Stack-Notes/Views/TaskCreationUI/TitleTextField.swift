@@ -16,7 +16,9 @@ class TitleTextField: UITextField {
         font = UIFont(name: "Helvetica", size: 40)
         adjustsFontSizeToFitWidth = true
         textAlignment = .center
-        placeholder = "Enter Title"
+        attributedPlaceholder = NSAttributedString(string: "Enter Title",
+                                         attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

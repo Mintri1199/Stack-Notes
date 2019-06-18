@@ -38,24 +38,15 @@ class ColorButton: UIButton {
     // MARK: Objc function
     @objc func colorSelected() {
         print("tapped")
-        weirdBehavior(bool: isSelected)
-//        if isSelected {
-//            borderLayer.lineWidth = 5
-//        } else {
-//            borderLayer.lineWidth = 0
-//        }
-    }
-    
-    func weirdBehavior(bool: Bool) {
-        if !bool{
+        if !isSelected {
             let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
             lineWidthAnimation.fromValue = 0
             lineWidthAnimation.toValue = 5
             lineWidthAnimation.duration = 0.25
             lineWidthAnimation.fillMode = .both
             lineWidthAnimation.delegate = self
-            borderLayer.lineWidth = 5
             borderLayer.add(lineWidthAnimation, forKey: nil)
+            borderLayer.lineWidth = 5
             isSelected = true
         } else {
             let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
@@ -63,10 +54,9 @@ class ColorButton: UIButton {
             shrinkBorder.duration = 0.5
             shrinkBorder.delegate = self
             shrinkBorder.fillMode = .both
-            borderLayer.lineWidth = 0
             borderLayer.add(shrinkBorder, forKey: nil)
+            borderLayer.lineWidth = 0
             isSelected = false
-            
         }
     }
 }
