@@ -11,7 +11,6 @@ import UIKit
 class ColorOptionsStackView: UIStackView {
     // MARK: variables
     var selectedColorButton = 0
-    var previouslySelected: Int?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -70,37 +69,22 @@ class ColorOptionsStackView: UIStackView {
         if !sender.isSelected {
             // Create lineWidth Expand animation
             let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
+            lineWidthAnimation.setValue("expand", forKey: "name")
             lineWidthAnimation.fromValue = 0
             lineWidthAnimation.toValue = 5
             lineWidthAnimation.duration = 0.25
             lineWidthAnimation.fillMode = .both
             lineWidthAnimation.delegate = self
             sender.borderLayer.add(lineWidthAnimation, forKey: nil)
+            selectedColorButton = sender.tag
             sender.isSelected = true
-            
-            arrangedSubviews.forEach { (button) in
-                guard let button = button as? ColorButton else { return }
-                if button.tag != selectedColorButton {
-                    shrinkButton(sender: button)
-                }
-            }
-            
-        } else {
-            let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
-            shrinkBorder.toValue = 0
-            shrinkBorder.duration = 0.5
-            shrinkBorder.delegate = self
-            shrinkBorder.fillMode = .both
-            sender.borderLayer.lineWidth = 0
-            sender.borderLayer.add(shrinkBorder, forKey: nil)
-            sender.isSelected = false
-            
         }
     }
     
     private func shrinkButton(sender: ColorButton) {
         let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
         shrinkBorder.setValue("shrink", forKey: "name")
+        shrinkBorder.setValue(sender.borderLayer, forKey: "layer")
         shrinkBorder.toValue = 0
         shrinkBorder.duration = 0.5
         shrinkBorder.delegate = self
@@ -113,5 +97,26 @@ class ColorOptionsStackView: UIStackView {
 
 extension ColorOptionsStackView: CAAnimationDelegate {
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        guard let name = anim.value(forKey: "name") as? String, let layer = anim.value(forKey: "layer") as? CAShapeLayer else { return }
+        if name == "expand" {
+            layer.lineWidth = 5
+        } else if name == "shrink" {
+            layer.lineWidth = 0
+        }
+    }
+    func animationDidStart(_ anim: CAAnimation) {
+        guard let name = anim.value(forKey: "name") as? String else { return }
+        
+        if name == "expand" {
+            arrangedSubviews.forEach { (button) in
+                guard let button = button as? ColorButton else { return }
+                if button.tag != selectedColorButton {
+                    if button.borderLayer.lineWidth == 0 {
+                        shrinkButton(sender: button)
+                    }
+                    
+                }
+            }
+        }
     }
 }
