@@ -9,22 +9,19 @@
 import UIKit
 
 // This will be the view for add todo VC
-class TodoVIew: UIView {
+class TodoView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        titleTextField.backgroundColor = .yellow
-//        descriptionTextView.backgroundColor = .purple
         setupViews()
+        layer.cornerRadius = 30
         backgroundColor = .white
         translatesAutoresizingMaskIntoConstraints = false
         clipsToBounds = true
-//        applyShadowOnView()
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     var titleTextField = TitleTextField()
-
     var descriptionTextView = TodoTaskDescription()
     private func setupViews() {
         addSubview(titleTextField)
@@ -39,16 +36,9 @@ class TodoVIew: UIView {
             descriptionTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             descriptionTextView.bottomAnchor.constraint(equalTo: bottomAnchor)
             ])
-    }
-}
-
-extension UIView {
-
-    func applyShadowOnView() {
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 30).cgPath
         layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
         layer.shadowOffset = CGSize(width: 0.0, height: 6.0)
         layer.shadowOpacity = 0.4
-        layer.shadowRadius = 2.0
-        layer.masksToBounds = false
     }
 }

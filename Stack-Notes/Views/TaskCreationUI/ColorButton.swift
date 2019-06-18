@@ -13,15 +13,16 @@ class ColorButton: UIButton {
     var borderLayer = CAShapeLayer()
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        layer.shadowColor = UIColor.black.cgColor
-//        layer.shadowOffset = CGSize(width: 0, height: 2.0)
-//        layer.shadowRadius = 2.0
-//        layer.shadowOpacity = 0.5
-//        layer.masksToBounds = false
-//        circleLayer.shadowPath = UIBezierPath(ovalIn: bounds).cgPath
+        isSelected = false
+        addTarget(self, action: #selector(colorSelected), for: .touchUpInside)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func didMoveToWindow() {
+        layer.addSublayer(circleLayer)
+        layer.addSublayer(borderLayer)
     }
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -30,9 +31,53 @@ class ColorButton: UIButton {
         //Draw the circle border
         borderLayer.path = UIBezierPath(ovalIn: bounds).cgPath
         borderLayer.strokeColor = UIColor.white.cgColor
-        borderLayer.lineWidth = 6
+        borderLayer.lineWidth = 0
         borderLayer.fillColor = UIColor.clear.cgColor
         self.layer.addSublayer(circleLayer)
         self.layer.addSublayer(borderLayer)
+    }
+    // MARK: Objc function
+    @objc func colorSelected() {
+        print("tapped")
+        weirdBehavior(bool: isSelected)
+//        if isSelected {
+//            borderLayer.lineWidth = 5
+//        } else {
+//            borderLayer.lineWidth = 0
+//        }
+    }
+    
+    func weirdBehavior(bool: Bool) {
+        if !bool{
+            let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
+            lineWidthAnimation.fromValue = 0
+            lineWidthAnimation.toValue = 5
+            lineWidthAnimation.duration = 0.25
+            lineWidthAnimation.fillMode = .both
+            lineWidthAnimation.delegate = self
+            borderLayer.lineWidth = 5
+            borderLayer.add(lineWidthAnimation, forKey: nil)
+            isSelected = true
+        } else {
+            let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
+            shrinkBorder.toValue = 0
+            shrinkBorder.duration = 0.5
+            shrinkBorder.delegate = self
+            shrinkBorder.fillMode = .both
+            borderLayer.lineWidth = 0
+            borderLayer.add(shrinkBorder, forKey: nil)
+            isSelected = false
+            
+        }
+    }
+}
+
+extension ColorButton: CAAnimationDelegate {
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        if isSelected {
+            borderLayer.lineWidth = 5
+        } else {
+            borderLayer.lineWidth = 0
+        }
     }
 }

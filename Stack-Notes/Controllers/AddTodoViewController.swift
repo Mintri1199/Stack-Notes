@@ -17,7 +17,7 @@ class AddTodoViewController: UIViewController {
     // MARK: Variables
     weak var delegate: AddTodo?
     // MARK: Custom UIs
-    var todoView = TodoVIew()
+    var todoView = TodoView()
     var colorStackView = ColorOptionsStackView()
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,7 +46,6 @@ extension AddTodoViewController {
             todoView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15),
             todoView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.50)
             ])
-        todoView.layer.cornerRadius = 30
         todoView.descriptionTextView.delegate = self
         todoView.titleTextField.delegate = self
     }
