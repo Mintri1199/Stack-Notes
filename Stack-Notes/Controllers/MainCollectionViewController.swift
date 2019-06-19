@@ -134,12 +134,7 @@ extension MainCollectionViewController {
 // MARK: AddTodoDelegate
 extension MainCollectionViewController: AddTodo {
     func addTodo(todo: Todo) {
-        let newTodo = NSEntityDescription.insertNewObject(forEntityName: "TodoPersistent", into: todoStore.persistentContainer.viewContext) as? TodoPersistent
-        print(todo)
-        newTodo?.color = todo.color
-        newTodo?.title = todo.title
-        newTodo?.taskDescription = todo.description
-        newTodo?.done = todo.done
+        let newTodo = todoStore.createTodo(todo: todo)
         if let todo = newTodo {
             viewModels.append(TodoViewModel.init(todo: todo))
         }

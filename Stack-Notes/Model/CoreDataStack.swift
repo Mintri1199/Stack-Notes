@@ -10,22 +10,56 @@ import Foundation
 import CoreData
 
 class TodoStore: NSObject {
-    // MARK: PersistentContainer
-    let persistentContainer: NSPersistentContainer = {
-        // creates the NSPersistentContainer object
-        let container = NSPersistentContainer(name: "Todo_Task")
-        // load the saved database if it exists, creates it if it does not,
-        // and returns an error under failure conditions
-        container.loadPersistentStores(completionHandler: { (description, error) in
-            if let error = error {
-                print("Error setting up Core Data (\(error)).")
+    var container: NSPersistentContainer!
+    init(test: Bool) {
+        super.init()
+        if test {
+            // Assign container to the mock
+            let managedObjectModel: NSManagedObjectModel = {
+                let managedObjectModel = NSManagedObjectModel.mergedModel(from: [Bundle(for: type(of: self))] )!
+                return managedObjectModel
+            }()
+            container = NSPersistentContainer(name: "ToDo", managedObjectModel: managedObjectModel)
+            let description = NSPersistentStoreDescription()
+            description.type = NSInMemoryStoreType // where we set the type
+            description.shouldAddStoreAsynchronously = false
+            container.persistentStoreDescriptions = [description]
+            container.loadPersistentStores { (description, error) in
+                // Check if the data store is in memory
+                precondition( description.type == NSInMemoryStoreType )
+                // Check for errors
+                if let error = error {
+                    fatalError("Something went wrong, \(error)")
+                }
             }
-        })
-        return container
-    }()
+        } else {
+            // Assign it to container for the app
+            container = NSPersistentContainer(name: "Todo_Task")
+            // load the saved database if it exists, creates it if it does not,
+            // and returns an error under failure conditions
+            container.loadPersistentStores(completionHandler: { (description, error) in
+                if let error = error {
+                    print("Error setting up Core Data (\(error)).")
+                }
+            })
+        }
+    }
+    // MARK: PersistentContainer
+//    let persistentContainer: NSPersistentContainer = {
+//        // creates the NSPersistentContainer object
+//        let container = NSPersistentContainer(name: "Todo_Task")
+//        // load the saved database if it exists, creates it if it does not,
+//        // and returns an error under failure conditions
+//        container.loadPersistentStores(completionHandler: { (description, error) in
+//            if let error = error {
+//                print("Error setting up Core Data (\(error)).")
+//            }
+//        })
+//        return container
+//    }()
     // MARK: Save context
     func saveContext() {
-        let viewContext = persistentContainer.viewContext
+        let viewContext = container.viewContext
         if viewContext.hasChanges {
             do {
                 try viewContext.save()
@@ -35,10 +69,20 @@ class TodoStore: NSObject {
             }
         }
     }
+    // MARK: Create new todo
+    func createTodo(todo: Todo) -> TodoPersistent? {
+        let newTodo = NSEntityDescription.insertNewObject(forEntityName: "TodoPersistent", into: container.viewContext) as? TodoPersistent
+        newTodo?.color = todo.color
+        newTodo?.title = todo.title
+        newTodo?.taskDescription = todo.description
+        newTodo?.done = todo.done
+        saveContext()
+        return newTodo
+    }
     // MARK: Fetch persisted data
     func fetchPersistedData(completion: (Result<[TodoPersistent], Error>) -> Void) {
         let fetchRequest: NSFetchRequest<TodoPersistent> = TodoPersistent.fetchRequest()
-        let viewContext = persistentContainer.viewContext
+        let viewContext = container.viewContext
         do {
             let allTodos = try viewContext.fetch(fetchRequest)
             completion(.success(allTodos))
@@ -48,12 +92,12 @@ class TodoStore: NSObject {
     }
     // MARK: DeletePersistedTodo
     func deletePersistedTodo(entityId: NSManagedObjectID) {
-        let object: TodoPersistent = persistentContainer.viewContext.object(with: entityId) as! TodoPersistent
-        persistentContainer.viewContext.delete(object)
+        let object: TodoPersistent = container.viewContext.object(with: entityId) as! TodoPersistent
+        container.viewContext.delete(object)
     }
     // MARK: FetchOneTodo
-    func fetchOneTodo(entityId: NSManagedObjectID) -> TodoPersistent{
-        let object: TodoPersistent = persistentContainer.viewContext.object(with: entityId) as! TodoPersistent
+    func fetchOneTodo(entityId: NSManagedObjectID) -> TodoPersistent? {
+        let object: TodoPersistent = container.viewContext.object(with: entityId) as! TodoPersistent
         return object
     }
 }

@@ -88,7 +88,7 @@ class ColorOptionsStackView: UIStackView {
             print("button \(sender.tag) is the selected button \(selectedColorButton)")
         }
     }
-    
+    // Shrinking animation
     private func shrinkButton(sender: ColorButton) {
         let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
         shrinkBorder.setValue("shrink", forKey: "name")

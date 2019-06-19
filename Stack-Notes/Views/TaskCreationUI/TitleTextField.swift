@@ -18,7 +18,6 @@ class TitleTextField: UITextField {
         textAlignment = .center
         attributedPlaceholder = NSAttributedString(string: "Enter Title",
                                          attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

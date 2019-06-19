@@ -16,7 +16,6 @@ struct TodoViewModel {
     var description: String?
     var done: Bool
     let entityId: NSManagedObjectID
-    
     init(todo: TodoPersistent) {
         self.title = todo.title!
         self.color = todo.color as! UIColor
