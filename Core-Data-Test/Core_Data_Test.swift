@@ -21,18 +21,15 @@ class Core_Data_Test: XCTestCase {
         manager = TodoStore(test: true)
         createMockItems()
     }
-    
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
         clearData()
     }
-    
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
-    
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measure {
@@ -71,6 +68,32 @@ class Core_Data_Test: XCTestCase {
         // The item count should not equal to the old count
         XCTAssertNotEqual(itemsTotalCount(), oldTotalCount)
         XCTAssertEqual(itemsTotalCount(), 2)
+    }
+    func test_update_one_todo() {
+        var allItems: [TodoPersistent] = []
+        // Fetch all the items in the persistent container
+        manager.fetchPersistedData {(result) in
+            switch result {
+            case .success(let todos):
+                allItems = todos
+            case .failure(let error):
+                print("Unable to fetch all items from test")
+                print(error)
+            }
+        }
+        // Use the first persistent as control
+        guard let oldPersistent = allItems.first else { print("There were no persistent"); return }
+        // Define new attributes
+        let newAttributes = Todo.init(title: "UpdatedTitle", description: "Hello", done: false, color: UIColor.lightGray)
+        // Update it
+        manager.updateTodo(entityId: oldPersistent.objectID, todo: newAttributes)
+        // Fetch the same todo again
+        let updatedTodo = manager.fetchOneTodo(entityId: oldPersistent.objectID)
+        XCTAssertNotNil(updatedTodo)
+        XCTAssert(updatedTodo?.color == UIColor.lightGray)
+        XCTAssert(updatedTodo?.done == false)
+        XCTAssert(updatedTodo?.title == "UpdatedTitle")
+        XCTAssert(updatedTodo?.description == "Hello")
     }
     func createMockItems() {
         func insertTodoItem(title: String) -> TodoPersistent? {

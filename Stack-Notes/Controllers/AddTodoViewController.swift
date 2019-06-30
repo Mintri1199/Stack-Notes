@@ -14,15 +14,13 @@ protocol AddTodo: class {
 }
 
 class AddTodoViewController: UIViewController {
-    
+    // MARK: Variables
     var selectedColor: UIColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1) {
         didSet {
             self.view.backgroundColor = selectedColor
             navigationController?.navigationBar.barTintColor = selectedColor
         }
     }
-    
-    // MARK: Variables
     weak var delegate: AddTodo?
     // MARK: Custom UIs
     var todoView = TodoView()
@@ -106,7 +104,6 @@ extension AddTodoViewController {
             navigationController?.popViewController(animated: true)
         }
     }
-    
 }
 
 // MARK: TextViewDelegate
@@ -158,7 +155,6 @@ extension AddTodoViewController {
         if let color = sender.circleLayer.fillColor {
             selectedColor = UIColor(cgColor: color)
         }
-        
 //        if selectedColorButton != sender.tag && sender.borderLayer.lineWidth == 0 {
 //            selectedColorButton = sender.tag
 //            // Create lineWidth Expand animation
@@ -195,7 +191,6 @@ extension AddTodoViewController: CAAnimationDelegate {
     func animationDidStart(_ anim: CAAnimation) {
         //
     }
-    
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         //
     }

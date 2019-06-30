@@ -156,7 +156,6 @@ extension TodoDetailViewController {
         if let color = sender.circleLayer.fillColor {
             selectedColor = UIColor(cgColor: color)
         }
-        
         //        if selectedColorButton != sender.tag && sender.borderLayer.lineWidth == 0 {
         //            selectedColorButton = sender.tag
         //            // Create lineWidth Expand animation
@@ -185,7 +184,6 @@ extension TodoDetailViewController {
         sender.borderLayer.add(shrinkBorder, forKey: nil)
         sender.isSelected = false
     }
-    
 }
 
 // MARK: CoreAnimationDelegate
@@ -193,7 +191,6 @@ extension TodoDetailViewController: CAAnimationDelegate {
     func animationDidStart(_ anim: CAAnimation) {
         //
     }
-    
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         //
     }
