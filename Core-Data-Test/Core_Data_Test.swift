@@ -72,7 +72,6 @@ class Core_Data_Test: XCTestCase {
         XCTAssertNotEqual(itemsTotalCount(), oldTotalCount)
         XCTAssertEqual(itemsTotalCount(), 2)
     }
-    
     func createMockItems() {
         func insertTodoItem(title: String) -> TodoPersistent? {
             let object = NSEntityDescription.insertNewObject(forEntityName: "TodoPersistent", into: manager.container.viewContext)

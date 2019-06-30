@@ -1,35 +1,32 @@
 //
-//  ViewController.swift
+//  TodoDetailViewController.swift
 //  Stack-Notes
 //
-//  Created by Jackson Ho on 6/10/19.
+//  Created by Jackson Ho on 6/30/19.
 //  Copyright © 2019 Jackson Ho. All rights reserved.
 //
 
 import UIKit
+import CoreData
 
-// MARK: Add todo delegate
-protocol AddTodo: class {
-    func addTodo(todo: Todo)
-}
-
-class AddTodoViewController: UIViewController {
-    
-    var selectedColor: UIColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1) {
+class TodoDetailViewController: UIViewController {
+    // MARK: Variables
+    var todoId: NSManagedObjectID?
+    var todo: Todo?
+    var selectedColor: UIColor? {
         didSet {
             self.view.backgroundColor = selectedColor
             navigationController?.navigationBar.barTintColor = selectedColor
         }
     }
-    
-    // MARK: Variables
-    weak var delegate: AddTodo?
+    var todoStore: TodoStore!
     // MARK: Custom UIs
     var todoView = TodoView()
     var colorStackView = ColorOptionsStackView()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        selectedColor = todo!.color
         setupSelfView()
         setupTodoView()
         setupColorStackView()
@@ -38,15 +35,12 @@ class AddTodoViewController: UIViewController {
         super.viewWillAppear(animated)
         configNavBar()
     }
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
 }
 
 // MARK: UI Functions
-extension AddTodoViewController {
+extension TodoDetailViewController {
     private func setupSelfView() {
-        self.view.backgroundColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1)
+        self.view.backgroundColor = selectedColor
     }
     private func setupTodoView() {
         self.view.addSubview(todoView)
@@ -59,6 +53,13 @@ extension AddTodoViewController {
             ])
         todoView.descriptionTextView.delegate = self
         todoView.titleTextField.delegate = self
+        // Placing the text
+        if let descriptionText = todo?.description {
+            todoView.descriptionTextView.text = descriptionText
+        }
+        if let titleText = todo?.title {
+            todoView.titleTextField.text = titleText
+        }
     }
     private func setupColorStackView() {
         self.view.addSubview(colorStackView)
@@ -76,41 +77,38 @@ extension AddTodoViewController {
         colorStackView.yellowButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
         colorStackView.purpleButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     }
-
     private func configNavBar() {
         self.title = "Add Todo"
         // Color of the nav bar
-        navigationController?.navigationBar.barTintColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1)
+        navigationController?.navigationBar.barTintColor = selectedColor
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.setValue(true, forKey: "hidesShadow")
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         // Nav bar buttons
-        let addButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveButtonTapped))
-        navigationItem.rightBarButtonItem = addButton
+        let updateButton = UIBarButtonItem(title: "Update", style: .done, target: self, action: #selector(updateButtonTapped))
+        navigationItem.rightBarButtonItem = updateButton
     }
 }
 
 // MARK: OBJC functions
-extension AddTodoViewController {
-    @objc private func saveButtonTapped() {
+extension TodoDetailViewController {
+    @objc private func updateButtonTapped() {
         if checkTitle() {
             // Add animation
         } else {
-            let title = todoView.titleTextField.text!
-            let description = todoView.descriptionTextView.text
-            let newTodo = Todo.init(title: title,
-                                   description: description,
-                                   done: false,
-                                   color: selectedColor)
-            delegate?.addTodo(todo: newTodo)
+            // Update Todo
+            todoStore.updateTodo(entityId: todoId!,
+                                 todo: Todo.init(title: todoView.titleTextField.text!,
+                                                 description: todoView.descriptionTextView.text,
+                                                 done: false,
+                                                 color: selectedColor!))
             navigationController?.popViewController(animated: true)
         }
     }
-    
 }
 
 // MARK: TextViewDelegate
-extension AddTodoViewController: UITextViewDelegate {
+extension TodoDetailViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.text == "Description" && textView.textColor == .lightGray {
             textView.text = ""
@@ -128,7 +126,7 @@ extension AddTodoViewController: UITextViewDelegate {
 }
 
 // MARK: TextFieldDelegate
-extension AddTodoViewController: UITextFieldDelegate {
+extension TodoDetailViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
@@ -152,28 +150,28 @@ extension AddTodoViewController: UITextFieldDelegate {
 }
 
 // MARK: Color Button Animation
-extension AddTodoViewController {
+extension TodoDetailViewController {
     @objc func colorSelected(_ sender: ColorButton) {
         print("tapped")
         if let color = sender.circleLayer.fillColor {
             selectedColor = UIColor(cgColor: color)
         }
         
-//        if selectedColorButton != sender.tag && sender.borderLayer.lineWidth == 0 {
-//            selectedColorButton = sender.tag
-//            // Create lineWidth Expand animation
-//            let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
-//            lineWidthAnimation.setValue("expand", forKey: "name")
-//            lineWidthAnimation.setValue(sender.borderLayer, forKey: "layer")
-//            lineWidthAnimation.toValue = 5
-//            lineWidthAnimation.duration = 0.25
-//            lineWidthAnimation.fillMode = .both
-//            lineWidthAnimation.delegate = self
-//            sender.borderLayer.add(lineWidthAnimation, forKey: nil)
-//            sender.isSelected = true
-//        } else {
-//            print("button \(sender.tag) is the selected button \(selectedColorButton)")
-//        }
+        //        if selectedColorButton != sender.tag && sender.borderLayer.lineWidth == 0 {
+        //            selectedColorButton = sender.tag
+        //            // Create lineWidth Expand animation
+        //            let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
+        //            lineWidthAnimation.setValue("expand", forKey: "name")
+        //            lineWidthAnimation.setValue(sender.borderLayer, forKey: "layer")
+        //            lineWidthAnimation.toValue = 5
+        //            lineWidthAnimation.duration = 0.25
+        //            lineWidthAnimation.fillMode = .both
+        //            lineWidthAnimation.delegate = self
+        //            sender.borderLayer.add(lineWidthAnimation, forKey: nil)
+        //            sender.isSelected = true
+        //        } else {
+        //            print("button \(sender.tag) is the selected button \(selectedColorButton)")
+        //        }
     }
     // Shrinking animation
     private func shrinkButton(sender: ColorButton) {
@@ -187,11 +185,11 @@ extension AddTodoViewController {
         sender.borderLayer.add(shrinkBorder, forKey: nil)
         sender.isSelected = false
     }
-
+    
 }
 
 // MARK: CoreAnimationDelegate
-extension AddTodoViewController: CAAnimationDelegate {
+extension TodoDetailViewController: CAAnimationDelegate {
     func animationDidStart(_ anim: CAAnimation) {
         //
     }

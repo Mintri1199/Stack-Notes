@@ -13,6 +13,7 @@ class TodoStore: NSObject {
     var container: NSPersistentContainer!
     init(test: Bool) {
         super.init()
+        // Instanciate the right persistent container depending whether
         if test {
             // Assign container to the mock
             let managedObjectModel: NSManagedObjectModel = {
@@ -44,19 +45,6 @@ class TodoStore: NSObject {
             })
         }
     }
-    // MARK: PersistentContainer
-//    let persistentContainer: NSPersistentContainer = {
-//        // creates the NSPersistentContainer object
-//        let container = NSPersistentContainer(name: "Todo_Task")
-//        // load the saved database if it exists, creates it if it does not,
-//        // and returns an error under failure conditions
-//        container.loadPersistentStores(completionHandler: { (description, error) in
-//            if let error = error {
-//                print("Error setting up Core Data (\(error)).")
-//            }
-//        })
-//        return container
-//    }()
     // MARK: Save context
     func saveContext() {
         let viewContext = container.viewContext
@@ -99,5 +87,16 @@ class TodoStore: NSObject {
     func fetchOneTodo(entityId: NSManagedObjectID) -> TodoPersistent? {
         let object: TodoPersistent = container.viewContext.object(with: entityId) as! TodoPersistent
         return object
+    }
+    // MARK: UpdateTodo
+    func updateTodo(entityId: NSManagedObjectID, todo: Todo) {
+        let udpateQueue = DispatchQueue.global(qos: .userInteractive)
+        udpateQueue.async {
+            guard let persistent = self.fetchOneTodo(entityId: entityId) else { return }
+            persistent.setValue(todo.color, forKey: "color")
+            persistent.setValue(todo.title, forKey: "title")
+            persistent.setValue(todo.description, forKey: "taskDescription")
+            persistent.setValue(todo.done, forKey: "done")
+        }
     }
 }
