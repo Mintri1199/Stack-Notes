@@ -61,7 +61,7 @@ class ColorOptionsStackView: UIStackView {
   func preselect(color: UIColor) {
     guard let buttons = arrangedSubviews as? [ColorButton] else { print("Color buttons in the stack view are ill assign"); return }
     buttons.forEach { (button) in
-      if button.circleLayer.fillColor == color.cgColor {
+      if color.cgColor.compareConvertingColorSpace(other: button.circleLayer.fillColor!) {
         button.borderLayer.lineWidth = 4
       } else {
         button.borderLayer.lineWidth = 0

@@ -26,8 +26,8 @@ class TodoDetailViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
+    self.view.backgroundColor = selectedColor
     selectedColor = todo!.color
-    setupSelfView()
     setupTodoView()
     setupColorStackView()
   }
@@ -35,50 +35,70 @@ class TodoDetailViewController: UIViewController {
     super.viewWillAppear(animated)
     configNavBar()
   }
+  
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    appearingViews()
+    colorStackView.arrangedSubviews.forEach { (button) in
+      guard let button = button as? ColorButton else { return }
+      let color = selectedColor.cgColor
+      let buttonColor = button.circleLayer.fillColor!
+      if buttonColor.compareConvertingColorSpace(other: color) {
+        let expand = CABasicAnimation(keyPath: "lineWidth")
+        expand.toValue = 4
+        expand.duration = 0.5
+        expand.fillMode = .forwards
+        expand.setValue(button.borderLayer, forKey: "layer")
+        expand.setValue("expand", forKey: "name")
+        expand.delegate = self
+        button.borderLayer.add(expand, forKey: nil)
+      } else {
+        let shrink = CABasicAnimation(keyPath: "lineWidth")
+        shrink.toValue = 0
+        shrink.duration = 0.5
+        shrink.fillMode = .forwards
+        shrink.setValue(button.borderLayer, forKey: "layer")
+        shrink.setValue("shrink", forKey: "name")
+        shrink.delegate = self
+        button.borderLayer.add(shrink, forKey: nil)
+      }
+    }
+  }
 }
 
 // MARK: UI Functions
 extension TodoDetailViewController {
-  private func setupSelfView() {
-    self.view.backgroundColor = selectedColor
-  }
   private func setupTodoView() {
     self.view.addSubview(todoView)
     NSLayoutConstraint.activate([
       todoView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
       todoView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 25),
       todoView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -25 ),
-      todoView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15),
-      todoView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.50)
+      todoView.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.50),
+      todoView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: view.bounds.height)
       ])
     todoView.descriptionTextView.delegate = self
     todoView.titleTextField.delegate = self
-    // Placing the text
-    if let descriptionText = todo?.description {
-      todoView.descriptionTextView.text = descriptionText
-    }
-    if let titleText = todo?.title {
-      todoView.titleTextField.text = titleText
-    }
   }
+  
   private func setupColorStackView() {
     self.view.addSubview(colorStackView)
     NSLayoutConstraint.activate([
-      colorStackView.topAnchor.constraint(equalTo: todoView.bottomAnchor, constant: 30),
+      colorStackView.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 100),
       colorStackView.leadingAnchor.constraint(equalTo: todoView.leadingAnchor),
       colorStackView.trailingAnchor.constraint(equalTo: todoView.trailingAnchor)
       ])
     // 50 is the sum of the  left and right anchor constants
     let buttonHeight = (UIScreen.main.bounds.width - (80 + 50)) / 5
-    colorStackView.heightAnchor.constraint(equalToConstant:
-      buttonHeight).isActive = true
-    colorStackView.pinkButton.circleLayer.lineWidth = 4
+    colorStackView.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
+    colorStackView.pinkButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.pinkButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.blueButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.greenButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.yellowButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.purpleButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
   }
+  
   private func configNavBar() {
     self.title = "Add Todo"
     // Color of the nav bar
@@ -160,5 +180,64 @@ extension TodoDetailViewController: UITextFieldDelegate {
       }
     }
     return false
+  }
+}
+// MARK: Animations
+extension TodoDetailViewController {
+  func appearingViews() {
+    todoView.superview!.constraints.forEach { (constraint) in
+      if constraint.firstAttribute == .centerY {
+        // Get rid of the constraint
+        constraint.isActive = false
+        // Create new constraint
+        let newContraint = NSLayoutConstraint(
+          item: todoView,
+          attribute: .top,
+          relatedBy: .equal,
+          toItem: self.view, attribute: .topMargin,
+          multiplier: 1,
+          constant: 15)
+        newContraint.isActive = true
+        return
+      }
+      UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+        self.view.layoutIfNeeded()
+      }, completion: { _ in
+        self.colorStackView.superview!.constraints.forEach { (constraint) in
+          if constraint.firstItem === self.colorStackView && constraint.firstAttribute == .top {
+            // Get rid of the constraint
+            constraint.isActive = false
+            // Create new constraint
+            let newContraint = NSLayoutConstraint(
+              item: self.colorStackView,
+              attribute: .top,
+              relatedBy: .equal,
+              toItem: self.todoView, attribute: .bottom,
+              multiplier: 1,
+              constant: 15)
+            newContraint.isActive = true
+            return
+          }
+          // Animate the buttons coming in after the todo view finish animating
+          UIView.animate(withDuration: 0.5, delay: 0.4, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+            self.view.layoutIfNeeded()
+          }, completion: nil)
+        }
+      })
+    }
+  }
+}
+extension TodoDetailViewController: CAAnimationDelegate {
+  func animationDidStart(_ anim: CAAnimation) {
+    if let name = anim.value(forKey: "name") as? String {
+      if name == "expand", let layer = anim.value(forKey: "layer") as? CAShapeLayer {
+        layer.lineWidth = 4
+      } else if name == "shrink", let layer = anim.value(forKey: "layer") as? CAShapeLayer {
+        layer.lineWidth = 0
+      }
+    }
+  }
+  func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+    //
   }
 }

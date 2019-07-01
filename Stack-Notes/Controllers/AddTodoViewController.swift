@@ -223,21 +223,15 @@ extension AddTodoViewController: CAAnimationDelegate {
 extension AddTodoViewController {
   
   // MARK: Background Color Changing Animation
+  // TODO: Come back to this later
   func changingColor() {
     // The faux layers
     let navBarLayer = CALayer()
-    //    let viewLayer = CALayer()
-    //    viewLayer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0)
     var bounds = navigationController?.navigationBar.bounds
     bounds?.size.height += UIApplication.shared.statusBarFrame.height
     
     navBarLayer.backgroundColor = UIColor.red.cgColor
     navBarLayer.frame = bounds!
-    //    navigationController?.navigationBar.layer.addSublayer(navBarLayer)
-    //    navigationController?.navigationBar.layer.addSublayer(navBarLayer)
-    //    navigationController?.navigationBar.layer.insertSublayer(navBarLayer, at: 1)
-    
-    //    self.view.layer.addSublayer(viewLayer)
   }
   func appearingViews() {
     todoView.superview!.constraints.forEach { (constraint) in
