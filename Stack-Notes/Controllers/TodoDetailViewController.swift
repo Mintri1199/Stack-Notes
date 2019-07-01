@@ -131,11 +131,31 @@ extension TodoDetailViewController {
     print("tapped")
     colorStackView.arrangedSubviews.forEach { (button) in
       guard let button = button as? ColorButton else { return }
-      if sender.circleLayer.fillColor != button.circleLayer.fillColor! {
-        button.borderLayer.lineWidth = 0
+      let color = sender.circleLayer.fillColor!
+      let buttonColor = button.circleLayer.fillColor!
+      // Add shrink animation to the other of buttons that does match the
+      // selected color
+      if !buttonColor.compareConvertingColorSpace(other: color) {
+        let shrink = CABasicAnimation(keyPath: "lineWidth")
+        shrink.toValue = 0
+        shrink.duration = 0.5
+        shrink.fillMode = .forwards
+        shrink.setValue(button.borderLayer, forKey: "layer")
+        shrink.setValue("shrink", forKey: "name")
+        shrink.delegate = self
+        button.borderLayer.add(shrink, forKey: nil)
       }
     }
+    // Add the border expand animation to the tapped button
     if let color = sender.circleLayer.fillColor {
+      let expand = CABasicAnimation(keyPath: "lineWidth")
+      expand.toValue = 4
+      expand.duration = 0.5
+      expand.fillMode = .forwards
+      expand.setValue(sender.borderLayer, forKey: "layer")
+      expand.setValue("expand", forKey: "name")
+      expand.delegate = self
+      sender.borderLayer.add(expand, forKey: nil)
       selectedColor = UIColor(cgColor: color)
     }
   }

@@ -18,8 +18,7 @@ class AddTodoViewController: UIViewController {
   // MARK: Variables
   var selectedColor: UIColor? = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1) {
     didSet {
-      self.view.backgroundColor = selectedColor
-      navigationController?.navigationBar.barTintColor = selectedColor
+     changeColor()
     }
   }
   weak var delegate: AddTodo?
@@ -27,6 +26,7 @@ class AddTodoViewController: UIViewController {
   // MARK: Custom UIs
   var todoView = TodoView()
   var colorStackView = ColorOptionsStackView()
+  var smallTaskButton = SmallTodoIndicator()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -34,7 +34,8 @@ class AddTodoViewController: UIViewController {
     self.view.backgroundColor = selectedColor
     setupTodoView()
     setupColorStackView()
-    changingColor()
+    setupSmallTodoButton()
+    
   }
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
@@ -113,6 +114,23 @@ extension AddTodoViewController {
     let addButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveButtonTapped))
     navigationItem.rightBarButtonItem = addButton
   }
+  
+  private func setupSmallTodoButton() {
+    self.view.addSubview(smallTaskButton)
+    NSLayoutConstraint.activate([
+      smallTaskButton.topAnchor.constraint(equalTo: colorStackView.bottomAnchor, constant: 100),
+      smallTaskButton.leadingAnchor.constraint(equalTo: colorStackView.leadingAnchor, constant: 10),
+      smallTaskButton.trailingAnchor.constraint(equalTo: colorStackView.trailingAnchor, constant: -10),
+      smallTaskButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.06)
+      ])
+    smallTaskButton.nameLabel.textColor = selectedColor!
+  }
+  
+  private func changeColor() {
+    self.view.backgroundColor = selectedColor
+    navigationController?.navigationBar.barTintColor = selectedColor
+    smallTaskButton.nameLabel.textColor = selectedColor
+  }
 }
 
 // MARK: OBJC functions
@@ -132,7 +150,6 @@ extension AddTodoViewController {
     }
   }
   @objc func colorSelected(_ sender: ColorButton) {
-    print("tapped")
     colorStackView.arrangedSubviews.forEach { (button) in
       guard let button = button as? ColorButton else { return }
       let color = sender.circleLayer.fillColor!
@@ -270,7 +287,20 @@ extension AddTodoViewController {
           // Animate the buttons coming in after the todo view finish animating
           UIView.animate(withDuration: 0.5, delay: 0.4, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
             self.view.layoutIfNeeded()
-          }, completion: nil)
+          }, completion: { _ in
+            self.smallTaskButton.superview?.constraints.forEach({ (constraint) in
+              if constraint.firstItem === self.smallTaskButton && constraint.firstAttribute == .top {
+                // Get rid of the constraint
+                constraint.constant = 20
+                return
+              }
+            })
+            // Animate the button coming in after
+              UIView.animate(withDuration: 0.4, delay: 0.3, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+                self.view.layoutIfNeeded()
+              }, completion: nil)
+             
+          })
         }
       })
     }

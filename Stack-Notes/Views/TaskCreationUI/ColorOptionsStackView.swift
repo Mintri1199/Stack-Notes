@@ -36,7 +36,7 @@ class ColorOptionsStackView: UIStackView {
   var yellowButton: ColorButton = {
     var button = ColorButton(frame: .zero)
     button.borderLayer.lineWidth = 0
-    button.circleLayer.fillColor = #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1)
+    button.circleLayer.fillColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
     return button
   }()
   var greenButton: ColorButton = {

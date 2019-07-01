@@ -29,6 +29,7 @@
 		44ADD52722AEC63100B0DA41 /* Stack_NotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44ADD52622AEC63100B0DA41 /* Stack_NotesUITests.swift */; };
 		44F4331F22C8AA0C005A12D7 /* TodoDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F4331E22C8AA0C005A12D7 /* TodoDetailViewController.swift */; };
 		44F4332122C9BEEB005A12D7 /* ExpandAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F4332022C9BEEB005A12D7 /* ExpandAnimator.swift */; };
+		44F4332422CAB3D0005A12D7 /* SmallTodoIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F4332322CAB3D0005A12D7 /* SmallTodoIndicator.swift */; };
 		44FC5A6C22B72C580025BBB6 /* Todo_Task.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 44FC5A6A22B72C580025BBB6 /* Todo_Task.xcdatamodeld */; };
 		44FC5A6E22B72C760025BBB6 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FC5A6D22B72C760025BBB6 /* CoreDataStack.swift */; };
 		44FC5A7022B72D240025BBB6 /* TitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FC5A6F22B72D240025BBB6 /* TitleTextField.swift */; };
@@ -93,6 +94,7 @@
 		44ADD52822AEC63100B0DA41 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		44F4331E22C8AA0C005A12D7 /* TodoDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailViewController.swift; sourceTree = "<group>"; };
 		44F4332022C9BEEB005A12D7 /* ExpandAnimator.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = ExpandAnimator.swift; sourceTree = "<group>"; tabWidth = 2; };
+		44F4332322CAB3D0005A12D7 /* SmallTodoIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallTodoIndicator.swift; sourceTree = "<group>"; };
 		44FC5A6B22B72C580025BBB6 /* TodoTask.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TodoTask.xcdatamodel; sourceTree = "<group>"; };
 		44FC5A6D22B72C760025BBB6 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		44FC5A6F22B72D240025BBB6 /* TitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleTextField.swift; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 				44FC5A7122B72D6C0025BBB6 /* TodoTaskDescription.swift */,
 				445CCF1722B7548400F3F074 /* ColorOptionsStackView.swift */,
 				445CCF1922B754C600F3F074 /* ColorButton.swift */,
+				44F4332322CAB3D0005A12D7 /* SmallTodoIndicator.swift */,
 			);
 			path = TaskCreationUI;
 			sourceTree = "<group>";
@@ -563,6 +566,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				44FC5A6C22B72C580025BBB6 /* Todo_Task.xcdatamodeld in Sources */,
+				44F4332422CAB3D0005A12D7 /* SmallTodoIndicator.swift in Sources */,
 				44F4331F22C8AA0C005A12D7 /* TodoDetailViewController.swift in Sources */,
 				44ADD50922AEC63000B0DA41 /* AddTodoViewController.swift in Sources */,
 				4405AE4A22AF38A6008CBFA8 /* MainCollectionViewController.swift in Sources */,
