@@ -30,7 +30,7 @@ class ColorButton: UIButton {
         //Draw the circle border
         borderLayer.path = UIBezierPath(ovalIn: bounds).cgPath
         borderLayer.strokeColor = UIColor.white.cgColor
-        borderLayer.lineWidth = 0
+        borderLayer.lineWidth = 4
         borderLayer.fillColor = UIColor.clear.cgColor
         self.layer.addSublayer(circleLayer)
         self.layer.addSublayer(borderLayer)

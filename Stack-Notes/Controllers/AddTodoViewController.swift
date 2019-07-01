@@ -15,7 +15,7 @@ protocol AddTodo: class {
 
 class AddTodoViewController: UIViewController {
   // MARK: Variables
-  var selectedColor: UIColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1) {
+  var selectedColor: UIColor? = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1) {
     didSet {
       self.view.backgroundColor = selectedColor
       navigationController?.navigationBar.barTintColor = selectedColor
@@ -30,7 +30,7 @@ class AddTodoViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
-    setupSelfView()
+    self.view.backgroundColor = selectedColor
     setupTodoView()
     setupColorStackView()
     changingColor()
@@ -44,57 +44,18 @@ class AddTodoViewController: UIViewController {
   }
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    
-    
-    
-    todoView.superview!.constraints.forEach { (constraint) in
-      if constraint.firstAttribute == .centerY {
-        // Get rid of the constraint
-        constraint.isActive = false
-        // Create new constraint
-        let newContraint = NSLayoutConstraint(
-          item: todoView,
-          attribute: .top,
-          relatedBy: .equal,
-          toItem: self.view, attribute: .topMargin,
-          multiplier: 1,
-          constant: 15)
-        newContraint.isActive = true
-        return
+    appearingViews()
+    colorStackView.arrangedSubviews.forEach { (button) in
+      guard let button = button as? ColorButton else { return }
+      if button.circleLayer.fillColor != selectedColor!.cgColor {
+        button.borderLayer.lineWidth = 0
       }
-      UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
-        self.view.layoutIfNeeded()
-      }, completion: { _ in
-        self.colorStackView.superview!.constraints.forEach { (constraint) in
-          if constraint.firstItem === self.colorStackView && constraint.firstAttribute == .top {
-            // Get rid of the constraint
-            constraint.isActive = false
-            // Create new constraint
-            let newContraint = NSLayoutConstraint(
-              item: self.colorStackView,
-              attribute: .top,
-              relatedBy: .equal,
-              toItem: self.todoView, attribute: .bottom,
-              multiplier: 1,
-              constant: 15)
-            newContraint.isActive = true
-            return
-          }
-          // Animate the buttons coming in after the todo view finish animating
-          UIView.animate(withDuration: 0.5, delay: 0.4, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
-            self.view.layoutIfNeeded()
-          }, completion: nil)
-        }
-      })
     }
   }
 }
 
 // MARK: UI Functions
 extension AddTodoViewController {
-  private func setupSelfView() {
-    self.view.backgroundColor = #colorLiteral(red: 0.8549019694, green: 0.250980407, blue: 0.4784313738, alpha: 1)
-  }
   private func setupTodoView() {
     self.view.addSubview(todoView)
     NSLayoutConstraint.activate([
@@ -117,6 +78,14 @@ extension AddTodoViewController {
     // 50 is the sum of the  left and right anchor constants
     let buttonHeight = (UIScreen.main.bounds.width - (80 + 50)) / 5
     colorStackView.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
+    colorStackView.pinkButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
+//    colorStackView.pinkButton.borderLayer.lineWidth = 10
+//    colorStackView.pinkButton.circleLayer.lineWidth = 0
+//    colorStackView.arrangedSubviews.forEach { (button) in
+//      if let button = button as? UIButton {
+//        button.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
+//      }
+//    }
     colorStackView.pinkButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.blueButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.greenButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
@@ -148,7 +117,7 @@ extension AddTodoViewController {
       let newTodo = Todo.init(title: title,
                               description: description,
                               done: false,
-                              color: selectedColor)
+                              color: selectedColor!)
       delegate?.addTodo(todo: newTodo)
       navigationController?.popViewController(animated: true)
     }
@@ -201,24 +170,16 @@ extension AddTodoViewController: UITextFieldDelegate {
 extension AddTodoViewController {
   @objc func colorSelected(_ sender: ColorButton) {
     print("tapped")
+    colorStackView.arrangedSubviews.forEach { (button) in
+      guard let button = button as? ColorButton else { return }
+      if sender.circleLayer.fillColor != button.circleLayer.fillColor! {
+        button.borderLayer.lineWidth = 0
+      }
+    }
     if let color = sender.circleLayer.fillColor {
       selectedColor = UIColor(cgColor: color)
     }
-    //        if selectedColorButton != sender.tag && sender.borderLayer.lineWidth == 0 {
-    //            selectedColorButton = sender.tag
-    //            // Create lineWidth Expand animation
-    //            let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
-    //            lineWidthAnimation.setValue("expand", forKey: "name")
-    //            lineWidthAnimation.setValue(sender.borderLayer, forKey: "layer")
-    //            lineWidthAnimation.toValue = 5
-    //            lineWidthAnimation.duration = 0.25
-    //            lineWidthAnimation.fillMode = .both
-    //            lineWidthAnimation.delegate = self
-    //            sender.borderLayer.add(lineWidthAnimation, forKey: nil)
-    //            sender.isSelected = true
-    //        } else {
-    //            print("button \(sender.tag) is the selected button \(selectedColorButton)")
-    //        }
+    
   }
   // Shrinking animation
   private func shrinkButton(sender: ColorButton) {
@@ -263,12 +224,46 @@ extension AddTodoViewController {
     
     //    self.view.layer.addSublayer(viewLayer)
   }
-  @objc func appearingViews(_ tap: UITapGestureRecognizer) {
-    todoView.constraints.forEach { (constraint) in
+  func appearingViews() {
+    todoView.superview!.constraints.forEach { (constraint) in
       if constraint.firstAttribute == .centerY {
-        print(constraint)
+        // Get rid of the constraint
+        constraint.isActive = false
+        // Create new constraint
+        let newContraint = NSLayoutConstraint(
+          item: todoView,
+          attribute: .top,
+          relatedBy: .equal,
+          toItem: self.view, attribute: .topMargin,
+          multiplier: 1,
+          constant: 15)
+        newContraint.isActive = true
         return
       }
+      UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+        self.view.layoutIfNeeded()
+      }, completion: { _ in
+        self.colorStackView.superview!.constraints.forEach { (constraint) in
+          if constraint.firstItem === self.colorStackView && constraint.firstAttribute == .top {
+            // Get rid of the constraint
+            constraint.isActive = false
+            // Create new constraint
+            let newContraint = NSLayoutConstraint(
+              item: self.colorStackView,
+              attribute: .top,
+              relatedBy: .equal,
+              toItem: self.todoView, attribute: .bottom,
+              multiplier: 1,
+              constant: 15)
+            newContraint.isActive = true
+            return
+          }
+          // Animate the buttons coming in after the todo view finish animating
+          UIView.animate(withDuration: 0.5, delay: 0.4, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseInOut, animations: {
+            self.view.layoutIfNeeded()
+          }, completion: nil)
+        }
+      })
     }
   }
 }
