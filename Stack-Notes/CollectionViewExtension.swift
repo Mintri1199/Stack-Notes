@@ -14,3 +14,16 @@ extension UICollectionView {
         self.backgroundView = nil
     }
 }
+
+extension UIView {
+    // Find the viewController of a UI component
+    func findViewController() -> UIViewController? {
+        if let nextResponder = self.next as? UIViewController {
+            return nextResponder
+        } else if let nextResponder = self.next as? UIView {
+            return nextResponder.findViewController()
+        } else {
+            return nil
+        }
+    }
+}

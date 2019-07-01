@@ -41,7 +41,7 @@ class TodoCollectionViewCell: UICollectionViewCell {
         button.layer.cornerRadius = 5
         button.layer.borderWidth = 3
         button.layer.borderColor = UIColor.lightGray.cgColor
-        button.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+        button.layer.backgroundColor = UIColor.white.cgColor
         return button
     }()
     // MARK: - Setup UIs
@@ -59,4 +59,6 @@ class TodoCollectionViewCell: UICollectionViewCell {
             titleLabel.trailingAnchor.constraint(equalTo: checkBox.leadingAnchor, constant: -10)
             ])
     }
+    
+
 }

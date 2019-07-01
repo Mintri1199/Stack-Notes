@@ -82,6 +82,7 @@ class TodoStore: NSObject {
     func deletePersistedTodo(entityId: NSManagedObjectID) {
         let object: TodoPersistent = container.viewContext.object(with: entityId) as! TodoPersistent
         container.viewContext.delete(object)
+        saveContext()
     }
     // MARK: FetchOneTodo
     func fetchOneTodo(entityId: NSManagedObjectID) -> TodoPersistent? {

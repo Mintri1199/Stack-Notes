@@ -50,6 +50,7 @@ class MainCollectionViewController: UICollectionViewController {
     let todo = viewModels[indexPath.row]
     cell.backgroundColor = todo.color
     cell.titleLabel.text = todo.title
+    cell.checkBox.addTarget(self, action: #selector(doneTapped(_:event:)), for: .touchUpInside)
     return cell
   }
   override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -113,6 +114,7 @@ extension MainCollectionViewController {
     addTodoVC.delegate = self
     navigationController?.pushViewController(addTodoVC, animated: true)
   }
+  
   @objc private func trashTapped() {
     isRemoving = true
     let doneRemovingButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneRemoving))
@@ -120,6 +122,7 @@ extension MainCollectionViewController {
     navigationItem.rightBarButtonItem = nil
     self.collectionView.reloadData()
   }
+  
   @objc private func doneRemoving() {
     isRemoving = false
     let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
@@ -127,6 +130,37 @@ extension MainCollectionViewController {
     navigationItem.rightBarButtonItem = addButton
     navigationItem.leftBarButtonItem = deleteButton
     self.collectionView.reloadData()
+  }
+  
+  // MARK: Check box button
+  @objc func doneTapped(_ sender: UIButton, event: UIEvent) {
+    guard let touch = event.allTouches?.first else { return }
+    // Get the point of where the user touched
+    let touchPosition: CGPoint = (touch.location(in: self.collectionView))
+    
+    // Get the index path of the cell from the point of where the user touched
+    guard let indexPath = self.collectionView.indexPathForItem(at: touchPosition) else { return }
+    
+    if let cell = collectionView.cellForItem(at: indexPath) as? TodoCollectionViewCell {
+      // Change the color of the check box
+      UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut, animations: {
+        cell.checkBox.backgroundColor = .green
+        cell.checkBox.layer.borderWidth = 0
+      }, completion: { _ in
+        // Delete the Todo once the check box animation finished
+        DispatchQueue.global(qos: .utility).async {
+          self.todoStore.deletePersistedTodo(entityId: self.viewModels[indexPath.row].entityId)
+        }
+        
+        DispatchQueue.main.async {
+          self.collectionView.performBatchUpdates({
+            self.viewModels.remove(at: indexPath.row)
+            self.collectionView.deleteItems(at: [indexPath])
+            self.todoStore.saveContext()
+          }, completion: nil)
+        }
+      })
+    }
   }
 }
 // MARK: Core Data functions
