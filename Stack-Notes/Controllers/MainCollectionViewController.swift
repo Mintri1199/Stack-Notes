@@ -24,7 +24,9 @@ class MainCollectionViewController: UICollectionViewController {
     self.collectionView!.register(TodoCollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
     // Do any additional setup after loading the view.
     setupSelfView()
+    setNeedsStatusBarAppearanceUpdate()
   }
+  
   override var preferredStatusBarStyle: UIStatusBarStyle {
     return .lightContent // .default
   }

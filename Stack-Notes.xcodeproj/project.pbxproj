@@ -28,6 +28,7 @@
 		44ADD51C22AEC63100B0DA41 /* Stack_NotesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44ADD51B22AEC63100B0DA41 /* Stack_NotesTests.swift */; };
 		44ADD52722AEC63100B0DA41 /* Stack_NotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44ADD52622AEC63100B0DA41 /* Stack_NotesUITests.swift */; };
 		44F4331F22C8AA0C005A12D7 /* TodoDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F4331E22C8AA0C005A12D7 /* TodoDetailViewController.swift */; };
+		44F4332122C9BEEB005A12D7 /* ExpandAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F4332022C9BEEB005A12D7 /* ExpandAnimator.swift */; };
 		44FC5A6C22B72C580025BBB6 /* Todo_Task.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 44FC5A6A22B72C580025BBB6 /* Todo_Task.xcdatamodeld */; };
 		44FC5A6E22B72C760025BBB6 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FC5A6D22B72C760025BBB6 /* CoreDataStack.swift */; };
 		44FC5A7022B72D240025BBB6 /* TitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44FC5A6F22B72D240025BBB6 /* TitleTextField.swift */; };
@@ -91,6 +92,7 @@
 		44ADD52622AEC63100B0DA41 /* Stack_NotesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stack_NotesUITests.swift; sourceTree = "<group>"; };
 		44ADD52822AEC63100B0DA41 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		44F4331E22C8AA0C005A12D7 /* TodoDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailViewController.swift; sourceTree = "<group>"; };
+		44F4332022C9BEEB005A12D7 /* ExpandAnimator.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = ExpandAnimator.swift; sourceTree = "<group>"; tabWidth = 2; };
 		44FC5A6B22B72C580025BBB6 /* TodoTask.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TodoTask.xcdatamodel; sourceTree = "<group>"; };
 		44FC5A6D22B72C760025BBB6 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		44FC5A6F22B72D240025BBB6 /* TitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleTextField.swift; sourceTree = "<group>"; };
@@ -283,9 +285,18 @@
 			path = "Stack-NotesUITests";
 			sourceTree = "<group>";
 		};
+		44F4332222C9BEF1005A12D7 /* Animator */ = {
+			isa = PBXGroup;
+			children = (
+				44F4332022C9BEEB005A12D7 /* ExpandAnimator.swift */,
+			);
+			path = Animator;
+			sourceTree = "<group>";
+		};
 		44FC5A7522B748760025BBB6 /* MainSceenUIs */ = {
 			isa = PBXGroup;
 			children = (
+				44F4332222C9BEF1005A12D7 /* Animator */,
 				4405AE4F22AF39C0008CBFA8 /* MainCustomLayout.swift */,
 				440DA16B22AF3B09001EDDC6 /* EmptyView.swift */,
 				44FC5A7322B731350025BBB6 /* TaskCollectionViewCell.swift */,
@@ -570,6 +581,7 @@
 				445CCF1A22B754C600F3F074 /* ColorButton.swift in Sources */,
 				445CCF1D22B7740700F3F074 /* TaskViewModel.swift in Sources */,
 				4405AE5022AF39C0008CBFA8 /* MainCustomLayout.swift in Sources */,
+				44F4332122C9BEEB005A12D7 /* ExpandAnimator.swift in Sources */,
 				440DA16E22AF3C2F001EDDC6 /* CollectionViewExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

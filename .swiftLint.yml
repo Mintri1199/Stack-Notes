@@ -34,3 +34,4 @@ disabled_rules:
   - void_return
   - custom_rules
   - trailing_whitespace
+  - trailing_newline
