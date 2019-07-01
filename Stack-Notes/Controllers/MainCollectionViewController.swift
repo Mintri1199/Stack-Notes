@@ -79,6 +79,7 @@ class MainCollectionViewController: UICollectionViewController {
                            done: selectedTodo.done,
                            color: selectedTodo.color)
       detailVC.todoStore = todoStore
+      detailVC.colorStackView.preselect(color: selectedTodo.color)
       navigationController?.pushViewController(detailVC, animated: true)
     }
   }

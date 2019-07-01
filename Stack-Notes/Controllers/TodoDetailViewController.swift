@@ -107,6 +107,18 @@ extension TodoDetailViewController {
       navigationController?.popViewController(animated: true)
     }
   }
+  @objc func colorSelected(_ sender: ColorButton) {
+    print("tapped")
+    colorStackView.arrangedSubviews.forEach { (button) in
+      guard let button = button as? ColorButton else { return }
+      if sender.circleLayer.fillColor != button.circleLayer.fillColor! {
+        button.borderLayer.lineWidth = 0
+      }
+    }
+    if let color = sender.circleLayer.fillColor {
+      selectedColor = UIColor(cgColor: color)
+    }
+  }
 }
 
 // MARK: TextViewDelegate
@@ -148,52 +160,5 @@ extension TodoDetailViewController: UITextFieldDelegate {
       }
     }
     return false
-  }
-}
-
-// MARK: Color Button Animation
-extension TodoDetailViewController {
-  @objc func colorSelected(_ sender: ColorButton) {
-    print("tapped")
-    if let color = sender.circleLayer.fillColor {
-      selectedColor = UIColor(cgColor: color)
-    }
-    //        if selectedColorButton != sender.tag && sender.borderLayer.lineWidth == 0 {
-    //            selectedColorButton = sender.tag
-    //            // Create lineWidth Expand animation
-    //            let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
-    //            lineWidthAnimation.setValue("expand", forKey: "name")
-    //            lineWidthAnimation.setValue(sender.borderLayer, forKey: "layer")
-    //            lineWidthAnimation.toValue = 5
-    //            lineWidthAnimation.duration = 0.25
-    //            lineWidthAnimation.fillMode = .both
-    //            lineWidthAnimation.delegate = self
-    //            sender.borderLayer.add(lineWidthAnimation, forKey: nil)
-    //            sender.isSelected = true
-    //        } else {
-    //            print("button \(sender.tag) is the selected button \(selectedColorButton)")
-    //        }
-  }
-  // Shrinking animation
-  private func shrinkButton(sender: ColorButton) {
-    let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
-    shrinkBorder.setValue("shrink", forKey: "name")
-    shrinkBorder.setValue(sender.borderLayer, forKey: "layer")
-    shrinkBorder.toValue = 0
-    shrinkBorder.duration = 0.5
-    shrinkBorder.delegate = self
-    shrinkBorder.fillMode = .both
-    sender.borderLayer.add(shrinkBorder, forKey: nil)
-    sender.isSelected = false
-  }
-}
-
-// MARK: CoreAnimationDelegate
-extension TodoDetailViewController: CAAnimationDelegate {
-  func animationDidStart(_ anim: CAAnimation) {
-    //
-  }
-  func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-    //
   }
 }

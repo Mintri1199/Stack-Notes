@@ -14,7 +14,6 @@ class ColorButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         isSelected = false
-//        addTarget(self, action: #selector(colorSelected), for: .touchUpInside)
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -30,43 +29,10 @@ class ColorButton: UIButton {
         //Draw the circle border
         borderLayer.path = UIBezierPath(ovalIn: bounds).cgPath
         borderLayer.strokeColor = UIColor.white.cgColor
-        borderLayer.lineWidth = 4
         borderLayer.fillColor = UIColor.clear.cgColor
+        borderLayer.lineWidth = 0
         self.layer.addSublayer(circleLayer)
         self.layer.addSublayer(borderLayer)
     }
-//    // MARK: Objc function
-//    @objc func colorSelected() {
-//        print("tapped")
-//        if !isSelected {
-//            let lineWidthAnimation = CABasicAnimation(keyPath: "lineWidth")
-//            lineWidthAnimation.fromValue = 0
-//            lineWidthAnimation.toValue = 5
-//            lineWidthAnimation.duration = 0.25
-//            lineWidthAnimation.fillMode = .both
-//            lineWidthAnimation.delegate = self
-//            borderLayer.add(lineWidthAnimation, forKey: nil)
-//            borderLayer.lineWidth = 5
-//            isSelected = true
-//        } else {
-//            let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
-//            shrinkBorder.toValue = 0
-//            shrinkBorder.duration = 0.5
-//            shrinkBorder.delegate = self
-//            shrinkBorder.fillMode = .both
-//            borderLayer.add(shrinkBorder, forKey: nil)
-//            borderLayer.lineWidth = 0
-//            isSelected = false
-//        }
-//    }
 }
-//
-//extension ColorButton: CAAnimationDelegate {
-//    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-//        if isSelected {
-//            borderLayer.lineWidth = 5
-//        } else {
-//            borderLayer.lineWidth = 0
-//        }
-//    }
-//}
+

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreGraphics
 
 // MARK: Add todo delegate
 protocol AddTodo: class {
@@ -39,16 +40,31 @@ class AddTodoViewController: UIViewController {
     super.viewWillAppear(animated)
     configNavBar()
   }
-  override var preferredStatusBarStyle: UIStatusBarStyle {
-    return .lightContent
-  }
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     appearingViews()
     colorStackView.arrangedSubviews.forEach { (button) in
       guard let button = button as? ColorButton else { return }
-      if button.circleLayer.fillColor != selectedColor!.cgColor {
-        button.borderLayer.lineWidth = 0
+      let color = selectedColor!.cgColor
+      let buttonColor = button.circleLayer.fillColor!
+      if buttonColor.compareConvertingColorSpace(other: color) {
+        let expand = CABasicAnimation(keyPath: "lineWidth")
+        expand.toValue = 4
+        expand.duration = 0.5
+        expand.fillMode = .forwards
+        expand.setValue(button.borderLayer, forKey: "layer")
+        expand.setValue("expand", forKey: "name")
+        expand.delegate = self
+        button.borderLayer.add(expand, forKey: nil)
+      } else {
+        let shrink = CABasicAnimation(keyPath: "lineWidth")
+        shrink.toValue = 0
+        shrink.duration = 0.5
+        shrink.fillMode = .forwards
+        shrink.setValue(button.borderLayer, forKey: "layer")
+        shrink.setValue("shrink", forKey: "name")
+        shrink.delegate = self
+        button.borderLayer.add(shrink, forKey: nil)
       }
     }
   }
@@ -79,13 +95,6 @@ extension AddTodoViewController {
     let buttonHeight = (UIScreen.main.bounds.width - (80 + 50)) / 5
     colorStackView.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
     colorStackView.pinkButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
-//    colorStackView.pinkButton.borderLayer.lineWidth = 10
-//    colorStackView.pinkButton.circleLayer.lineWidth = 0
-//    colorStackView.arrangedSubviews.forEach { (button) in
-//      if let button = button as? UIButton {
-//        button.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
-//      }
-//    }
     colorStackView.pinkButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.blueButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
     colorStackView.greenButton.addTarget(self, action: #selector(colorSelected(_:)), for: .touchUpInside)
@@ -120,6 +129,35 @@ extension AddTodoViewController {
                               color: selectedColor!)
       delegate?.addTodo(todo: newTodo)
       navigationController?.popViewController(animated: true)
+    }
+  }
+  @objc func colorSelected(_ sender: ColorButton) {
+    print("tapped")
+    colorStackView.arrangedSubviews.forEach { (button) in
+      guard let button = button as? ColorButton else { return }
+      let color = sender.circleLayer.fillColor!
+      let buttonColor = button.circleLayer.fillColor!
+      if !buttonColor.compareConvertingColorSpace(other: color) {
+        let shrink = CABasicAnimation(keyPath: "lineWidth")
+        shrink.toValue = 0
+        shrink.duration = 0.5
+        shrink.fillMode = .forwards
+        shrink.setValue(button.borderLayer, forKey: "layer")
+        shrink.setValue("shrink", forKey: "name")
+        shrink.delegate = self
+        button.borderLayer.add(shrink, forKey: nil)
+      }
+    }
+    if let color = sender.circleLayer.fillColor {
+      let expand = CABasicAnimation(keyPath: "lineWidth")
+      expand.toValue = 4
+      expand.duration = 0.5
+      expand.fillMode = .forwards
+      expand.setValue(sender.borderLayer, forKey: "layer")
+      expand.setValue("expand", forKey: "name")
+      expand.delegate = self
+      sender.borderLayer.add(expand, forKey: nil)
+      selectedColor = UIColor(cgColor: color)
     }
   }
 }
@@ -166,47 +204,24 @@ extension AddTodoViewController: UITextFieldDelegate {
   }
 }
 
-// MARK: Color Button Animation
-extension AddTodoViewController {
-  @objc func colorSelected(_ sender: ColorButton) {
-    print("tapped")
-    colorStackView.arrangedSubviews.forEach { (button) in
-      guard let button = button as? ColorButton else { return }
-      if sender.circleLayer.fillColor != button.circleLayer.fillColor! {
-        button.borderLayer.lineWidth = 0
-      }
-    }
-    if let color = sender.circleLayer.fillColor {
-      selectedColor = UIColor(cgColor: color)
-    }
-    
-  }
-  // Shrinking animation
-  private func shrinkButton(sender: ColorButton) {
-    let shrinkBorder = CABasicAnimation(keyPath: "lineWidth")
-    shrinkBorder.setValue("shrink", forKey: "name")
-    shrinkBorder.setValue(sender.borderLayer, forKey: "layer")
-    shrinkBorder.toValue = 0
-    shrinkBorder.duration = 0.5
-    shrinkBorder.delegate = self
-    shrinkBorder.fillMode = .both
-    sender.borderLayer.add(shrinkBorder, forKey: nil)
-    sender.isSelected = false
-  }
-  
-}
-
 // MARK: CoreAnimationDelegate
 extension AddTodoViewController: CAAnimationDelegate {
   func animationDidStart(_ anim: CAAnimation) {
-    //
+    if let name = anim.value(forKey: "name") as? String {
+      if name == "expand", let layer = anim.value(forKey: "layer") as? CAShapeLayer {
+        layer.lineWidth = 4
+      } else if name == "shrink", let layer = anim.value(forKey: "layer") as? CAShapeLayer {
+        layer.lineWidth = 0
+      }
+    }
   }
   func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
     //
   }
 }
-
+// MARK: Animations
 extension AddTodoViewController {
+  
   // MARK: Background Color Changing Animation
   func changingColor() {
     // The faux layers
@@ -265,5 +280,12 @@ extension AddTodoViewController {
         }
       })
     }
+  }
+}
+
+extension CGColor {
+  func compareConvertingColorSpace(other: CGColor) -> Bool {
+    let approximateColor = other.converted(to: self.colorSpace!, intent: .defaultIntent, options: nil) // fatal errror with no color space
+    return self == approximateColor
   }
 }
