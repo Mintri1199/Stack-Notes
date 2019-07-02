@@ -173,7 +173,12 @@ extension MainCollectionViewController {
           self.collectionView.performBatchUpdates({
             self.viewModels.remove(at: indexPath.row)
             self.collectionView.deleteItems(at: [indexPath])
-            self.todoStore.saveContext()
+            if self.smallTasksExist == 0 {
+              self.collectionView.visibleCells.forEach({ (cell) in
+                guard let cell = cell as? TodoCollectionViewCell else { return }
+                cell.blackLayer.opacity = 0
+              })
+            }
           }, completion: nil)
         }
       })
