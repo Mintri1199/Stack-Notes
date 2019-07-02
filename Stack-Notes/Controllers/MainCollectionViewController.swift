@@ -16,6 +16,7 @@ class MainCollectionViewController: UICollectionViewController {
   var todoStore: TodoStore!
   var viewModels: [TodoViewModel] = []
   var isRemoving = false
+  var smallTasksExist: Int = 0
   // MARK: ViewDidLoad
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -25,6 +26,7 @@ class MainCollectionViewController: UICollectionViewController {
     // Do any additional setup after loading the view.
     setupSelfView()
     setNeedsStatusBarAppearanceUpdate()
+    print(smallTasksExist)
   }
   
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -34,7 +36,7 @@ class MainCollectionViewController: UICollectionViewController {
     super.viewWillAppear(animated)
     configNavBar()
     viewModels = []
-    todoStore.saveContext()
+//    todoStore.saveContext()
     populatePersistent()
   }
   // MARK: UICollectionViewDataSource
@@ -53,31 +55,41 @@ class MainCollectionViewController: UICollectionViewController {
     cell.backgroundColor = todo.color
     cell.titleLabel.text = todo.title
     cell.checkBox.addTarget(self, action: #selector(doneTapped(_:event:)), for: .touchUpInside)
+    if smallTasksExist > 0 {
+      cell.blackLayer.opacity = todo.small ? 0 : 0.5
+    } else {
+      cell.blackLayer.opacity = 0
+    }
     return cell
   }
   override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     if isRemoving {
       let selected = viewModels[indexPath.row]
       // Deleting persistent queue
-      let deleteQueue = DispatchQueue.global(qos: .utility)
-      deleteQueue.async {
+      DispatchQueue.global(qos: .utility).async {
         self.todoStore.deletePersistedTodo(entityId: selected.entityId)
       }
+      // Deleting a small task?
+      if viewModels[indexPath.row].small {
+        smallTasksExist -= 1
+      }
+      print(smallTasksExist)
       DispatchQueue.main.async {
         collectionView.performBatchUpdates({
           self.viewModels.remove(at: indexPath.row)
           collectionView.deleteItems(at: [indexPath])
-          self.todoStore.saveContext()
         }, completion: nil)
       }
     } else {
+      // Push to Cell detail ViewController
       let selectedTodo = viewModels[indexPath.row]
       let detailVC = TodoDetailViewController()
       detailVC.todoId = selectedTodo.entityId
       detailVC.todo = Todo(title: selectedTodo.title,
                            description: (selectedTodo.description != nil) ? selectedTodo.description! : nil,
                            done: selectedTodo.done,
-                           color: selectedTodo.color)
+                           color: selectedTodo.color,
+                           small: selectedTodo.small)
       detailVC.todoStore = todoStore
       detailVC.colorStackView.preselect(color: selectedTodo.color)
       navigationController?.pushViewController(detailVC, animated: true)
@@ -154,7 +166,9 @@ extension MainCollectionViewController {
         DispatchQueue.global(qos: .utility).async {
           self.todoStore.deletePersistedTodo(entityId: self.viewModels[indexPath.row].entityId)
         }
-        
+        if self.viewModels[indexPath.row].small {
+          self.smallTasksExist -= 1
+        }
         DispatchQueue.main.async {
           self.collectionView.performBatchUpdates({
             self.viewModels.remove(at: indexPath.row)
@@ -171,23 +185,27 @@ extension MainCollectionViewController {
   // Update the collectionView's datasource
   private func populatePersistent() {
     // Populate persistent queue
-    let populateQueue = DispatchQueue.global(qos: .userInteractive)
-    populateQueue.async {
-      self.todoStore.fetchPersistedData { (result) in
-        switch result {
-        case .success(let listOfTodos):
-          listOfTodos.forEach({ (persistent) in
-            self.viewModels.append(TodoViewModel.init(todo: persistent))
-          })
-        case .failure(let error):
-          print(error)
-          self.viewModels.removeAll()
-        }
-        // reload the collectionView's data source to present the current data set
-        DispatchQueue.main.async {
-          self.collectionView.reloadData()
-        }
-      }
+    smallTasksExist = 0
+    DispatchQueue.global(qos: .userInitiated).async {
+        self.todoStore.modifiedFetch(completion: { (result) in
+          switch result {
+          case .success(let listOfTodos):
+            listOfTodos.forEach({ (persistent) in
+              if persistent.small {
+                self.smallTasksExist += 1
+                print(self.smallTasksExist)
+              }
+              self.viewModels.append(TodoViewModel.init(todo: persistent))
+            })
+            DispatchQueue.main.async {
+              self.collectionView.reloadData()
+            }
+          case .failure(let error):
+            print(error)
+            self.smallTasksExist = 0
+            self.viewModels.removeAll()
+          }
+        })
     }
   }
 }
@@ -195,12 +213,9 @@ extension MainCollectionViewController {
 // MARK: AddTodoDelegate
 extension MainCollectionViewController: AddTodo {
   func addTodo(todo: Todo) {
-    let newTodo = todoStore.createTodo(todo: todo)
-    let saveQueue = DispatchQueue.global(qos: .userInitiated)
-    saveQueue.async {
-      if let todo = newTodo {
-        self.viewModels.append(TodoViewModel.init(todo: todo))
-      }
+    todoStore.createTodo(todo: todo)
+    DispatchQueue.global(qos: .userInitiated).async {
+      self.populatePersistent()
     }
   }
 }

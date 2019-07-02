@@ -5,6 +5,7 @@
         <attribute name="done" optional="YES" attributeType="Boolean" usesScalarValueType="YES">
             <userInfo/>
         </attribute>
+        <attribute name="small" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="taskDescription" optional="YES" attributeType="String">
             <userInfo/>
         </attribute>
@@ -13,6 +14,6 @@
         </attribute>
     </entity>
     <elements>
-        <element name="TodoPersistent" positionX="-63" positionY="-18" width="128" height="105"/>
+        <element name="TodoPersistent" positionX="-63" positionY="-18" width="128" height="120"/>
     </elements>
 </model>

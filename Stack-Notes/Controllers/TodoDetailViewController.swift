@@ -123,7 +123,8 @@ extension TodoDetailViewController {
                            todo: Todo.init(title: todoView.titleTextField.text!,
                                            description: todoView.descriptionTextView.text,
                                            done: false,
-                                           color: selectedColor))
+                                           color: selectedColor,
+                                           small: false))
       navigationController?.popViewController(animated: true)
     }
   }

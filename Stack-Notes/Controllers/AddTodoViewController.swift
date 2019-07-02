@@ -22,7 +22,7 @@ class AddTodoViewController: UIViewController {
     }
   }
   weak var delegate: AddTodo?
-  
+  var smallTask: Bool = false
   // MARK: Custom UIs
   var todoView = TodoView()
   var colorStackView = ColorOptionsStackView()
@@ -124,6 +124,7 @@ extension AddTodoViewController {
       smallTaskButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.06)
       ])
     smallTaskButton.nameLabel.textColor = selectedColor!
+    smallTaskButton.addTarget(self, action: #selector(smallTaskTapped(_:)), for: .touchUpInside)
   }
   
   private func changeColor() {
@@ -144,7 +145,8 @@ extension AddTodoViewController {
       let newTodo = Todo.init(title: title,
                               description: description,
                               done: false,
-                              color: selectedColor!)
+                              color: selectedColor!,
+                              small: smallTask)
       delegate?.addTodo(todo: newTodo)
       navigationController?.popViewController(animated: true)
     }
@@ -176,6 +178,12 @@ extension AddTodoViewController {
       sender.borderLayer.add(expand, forKey: nil)
       selectedColor = UIColor(cgColor: color)
     }
+  }
+  @objc func smallTaskTapped(_ sender: SmallTodoIndicator) {
+    smallTask = !smallTask
+    UIView.animate(withDuration: 1, delay: 0, options: .curveEaseIn, animations: {
+      self.smallTaskButton.nameLabel.backgroundColor = self.smallTask ? #colorLiteral(red: 0.5843137503, green: 0.8235294223, blue: 0.4196078479, alpha: 1) : .white
+    }, completion: nil)
   }
 }
 

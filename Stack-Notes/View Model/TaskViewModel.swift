@@ -11,17 +11,19 @@ import UIKit
 import CoreData
 
 struct TodoViewModel {
-    let title: String
-    let color: UIColor
-    var description: String?
-    var done: Bool
-    let entityId: NSManagedObjectID
-    // Dependency Injection
-    init(todo: TodoPersistent) {
-        self.title = todo.title!
-        self.color = todo.color as! UIColor
-        self.description = todo.taskDescription
-        self.done = todo.done
-        self.entityId = todo.objectID
-    }
+  let title: String
+  let color: UIColor
+  var description: String?
+  var done: Bool
+  var small: Bool
+  let entityId: NSManagedObjectID
+  // Dependency Injection
+  init(todo: TodoPersistent) {
+    self.title = todo.title!
+    self.color = todo.color as! UIColor
+    self.description = todo.taskDescription
+    self.done = todo.done
+    self.entityId = todo.objectID
+    self.small = todo.small
+  }
 }

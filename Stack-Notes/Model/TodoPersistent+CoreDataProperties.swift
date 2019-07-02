@@ -1,9 +1,8 @@
 //
 //  TodoPersistent+CoreDataProperties.swift
-//  Stack-Notes
+//  
 //
-//  Created by Jackson Ho on 6/17/19.
-//  Copyright © 2019 Jackson Ho. All rights reserved.
+//  Created by Jackson Ho on 7/1/19.
 //
 //
 
@@ -17,9 +16,10 @@ extension TodoPersistent {
         return NSFetchRequest<TodoPersistent>(entityName: "TodoPersistent")
     }
 
+    @NSManaged public var color: NSObject?
     @NSManaged public var done: Bool
+    @NSManaged public var small: Bool
     @NSManaged public var taskDescription: String?
     @NSManaged public var title: String?
-    @NSManaged public var color: NSObject?
 
 }
